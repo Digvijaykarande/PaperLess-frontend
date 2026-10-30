@@ -1,0 +1,137 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-strong: var(--primary-strong);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+}
+
+/* PaperLess design tokens: light theme only */
+:root {
+  --background: #f7f8fa; /* page */
+  --card: #ffffff; /* surface */
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --foreground: #111827; /* dark text */
+  --primary: #16a34a; /* success / primary */
+  --primary-foreground: #ffffff;
+  --primary-soft: #dcfce7; /* tinted fills */
+  --primary-strong: #15803d; /* green text on white (AA) */
+  --secondary: #f0fdf4;
+  --secondary-foreground: #15803d;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: #f0fdf4;
+  --accent-foreground: #15803d;
+  --destructive: #dc2626;
+  --border: #e5e7eb;
+  --input: #d1d5db;
+  --ring: #16a34a;
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scrollbar-gutter: stable;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading tracking-tight;
+  }
+}
+
+@layer components {
+  /* Paper-fold corner that opens on hover: the PaperLess signature */
+  .dog-ear {
+    @apply relative overflow-hidden;
+  }
+  .dog-ear::after {
+    content: "";
+    @apply pointer-events-none absolute top-0 right-0 size-6 scale-0 transition-transform duration-200 ease-out;
+    transform-origin: top right;
+    background: linear-gradient(225deg, var(--background) 50%, #bbf7d0 50%);
+    border-bottom-left-radius: 6px;
+  }
+  .dog-ear:hover::after,
+  .dog-ear:focus-visible::after {
+    @apply scale-100;
+  }
+
+  /* Skip rendering work for sections far below the fold */
+  .defer-render {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 520px;
+  }
+
+  /* Hero sheets fan out once on page load */
+  .sheet-left {
+    transform: translateX(-72px) rotate(-8deg);
+    animation: fan-left 0.9s 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .sheet-right {
+    transform: translateX(72px) rotate(7deg);
+    animation: fan-right 0.9s 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
+
+@keyframes fan-left {
+  from {
+    transform: none;
+  }
+}
+@keyframes fan-right {
+  from {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-left,
+  .sheet-right {
+    animation: none;
+  }
+  .dog-ear::after {
+    transition: none;
+  }
+}
