@@ -3,13 +3,16 @@ import { PHASE_PRODUCTION_BUILD } from "next/constants.js"
 const isProd = process.env.NODE_ENV === "production"
 
 export default function nextConfig(phase) {
-  const api = process.env.NEXT_PUBLIC_API_BASE_URL
+  // Fallback to your deployed Azure URL if the env var isn't set
+  const api =
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "https://paperless-e0hpfnaahbd8ajbx.centralindia-01.azurewebsites.net/api/v1"
   const site = process.env.NEXT_PUBLIC_SITE_URL
 
   if (phase === PHASE_PRODUCTION_BUILD) {
-    if (!api) {
-      throw new Error(
-        "NEXT_PUBLIC_API_BASE_URL is not set. Set it to your deployed API, e.g. https://your-api.azurewebsites.net/api/v1"
+    if (!process.env.NEXT_PUBLIC_API_BASE_URL) {
+      console.warn(
+        `\n[config] NEXT_PUBLIC_API_BASE_URL not set in env. Defaulting to: ${api}\n`
       )
     }
     if (!site) {
@@ -22,7 +25,6 @@ export default function nextConfig(phase) {
   const apiOrigin = api ? new URL(api).origin : ""
   const https = (site ?? "").startsWith("https://")
 
-  // Next.js needs inline scripts for hydration, so script-src keeps 'unsafe-inline'.
   const csp = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline'",
@@ -43,7 +45,6 @@ export default function nextConfig(phase) {
     compress: true,
 
     async redirects() {
-      // The old homepage URL now lives at "/".
       return [{ source: "/home", destination: "/", permanent: true }]
     },
 
