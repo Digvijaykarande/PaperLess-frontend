@@ -9,12 +9,16 @@ const STEPS = [
   { id: "done", label: "Ready" },
 ]
 
-export function JobProgress({ stage, progress, title }) {
+export function JobProgress({ stage, progress, title, slow }) {
   const current = STEPS.findIndex((s) => s.id === stage)
   return (
     <div className="flex flex-col items-center px-6 py-12 text-center" aria-live="polite">
       <h2 className="text-2xl font-bold">{title}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">This usually takes a few seconds.</p>
+      <p className="mt-1 max-w-md text-sm text-muted-foreground">
+        {slow
+          ? "Waking up the server. The first request after a quiet spell can take up to a minute."
+          : "This usually takes a few seconds."}
+      </p>
       <div className="mt-8 w-full max-w-md">
         <Progress value={progress} />
         <p className="mt-2 text-right text-xs font-medium text-muted-foreground">{progress}%</p>

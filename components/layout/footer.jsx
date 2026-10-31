@@ -1,47 +1,42 @@
 import Link from "next/link"
 
 import { Logo } from "@/components/common/logo"
+import { AUTH_ENABLED, SITE } from "@/lib/site"
+import { CATEGORIES, TOOLS } from "@/lib/tools"
+
+const COMPANY = [
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/terms", label: "Terms of Use" },
+  ...(AUTH_ENABLED
+    ? [
+        { href: "/login", label: "Sign in" },
+        { href: "/register", label: "Create account" },
+      ]
+    : []),
+]
 
 const COLUMNS = [
-  {
-    title: "Popular tools",
-    links: [
-      { href: "/tools/merge", label: "Merge PDF" },
-      { href: "/tools/split", label: "Split PDF" },
-      { href: "/tools/compress", label: "Compress PDF" },
-      { href: "/tools/pdf-to-word", label: "PDF to Word" },
-    ],
-  },
-  {
-    title: "Explore",
-    links: [
-      { href: "/tools", label: "All tools" },
-      { href: "/home#how-it-works", label: "How it works" },
-      { href: "/tools/protect", label: "Protect PDF" },
-      { href: "/tools/watermark", label: "Add watermark" },
-    ],
-  },
-  {
-    title: "Account",
-    links: [
-      { href: "/login", label: "Sign in" },
-      { href: "/register", label: "Create account" },
-    ],
-  },
+  ...CATEGORIES.map((cat) => ({
+    title: cat.label,
+    links: TOOLS.filter((t) => t.category === cat.id).map((t) => ({ href: `/tools/${t.slug}`, label: t.name })),
+  })),
+  { title: "PaperLess", links: [{ href: "/tools", label: "All tools" }, ...COMPANY] },
 ]
 
 export function Footer() {
   return (
     <footer className="border-t border-border bg-card">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 pt-10 pb-8 sm:px-6 md:grid-cols-[1.3fr_2fr] md:gap-12">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 pt-10 pb-8 sm:px-6 lg:grid-cols-[1.1fr_3fr] lg:gap-12">
         <div className="max-w-xs">
           <Logo />
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Simple PDF tools that run in your browser. Pick a tool, add a file, download the result.
+            Free online PDF tools. Pick a tool, add a file, download the result.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
           {COLUMNS.map((col) => (
             <nav key={col.title} aria-label={col.title}>
               <h3 className="font-heading text-sm font-semibold">{col.title}</h3>
@@ -64,8 +59,8 @@ export function Footer() {
 
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-1 px-4 py-4 text-xs text-muted-foreground sm:flex-row sm:px-6">
-          <p>© {new Date().getFullYear()} PaperLess. All rights reserved.</p>
-          <p>Build by :- Digvijay Karande</p>
+          <p>© {new Date().getFullYear()} {SITE.name}. All rights reserved.</p>
+          <p>Built by {SITE.author}</p>
           <p>Made for people who’d rather not print it.</p>
         </div>
       </div>

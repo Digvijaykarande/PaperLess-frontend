@@ -1,11 +1,15 @@
 import Link from "next/link"
+import { notFound } from "next/navigation"
 
+import { AUTH_ENABLED } from "@/lib/site"
 import { AuthShell } from "@/components/layout/auth-shell"
 import { LoginForm } from "@/components/pages/login/login-form"
 
-export const metadata = { title: "Sign in" }
+export const metadata = { title: "Sign in", robots: { index: false, follow: false } }
 
 export default function LoginPage() {
+  if (!AUTH_ENABLED) notFound()
+
   return (
     <AuthShell
       title="Welcome back"

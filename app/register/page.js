@@ -1,11 +1,15 @@
 import Link from "next/link"
+import { notFound } from "next/navigation"
 
+import { AUTH_ENABLED } from "@/lib/site"
 import { AuthShell } from "@/components/layout/auth-shell"
 import { RegisterForm } from "@/components/pages/register/register-form"
 
-export const metadata = { title: "Create account" }
+export const metadata = { title: "Create account", robots: { index: false, follow: false } }
 
 export default function RegisterPage() {
+  if (!AUTH_ENABLED) notFound()
+
   return (
     <AuthShell
       title="Create your account"

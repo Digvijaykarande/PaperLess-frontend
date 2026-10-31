@@ -7,12 +7,13 @@ import { Menu, X } from "lucide-react"
 
 import { Logo } from "@/components/common/logo"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { AUTH_ENABLED } from "@/lib/site"
 import { cn } from "@/lib/utils"
 
 const LINKS = [
-  { href: "/home", label: "Home" },
+  { href: "/", label: "Home" },
   { href: "/tools", label: "All tools" },
-  { href: "/home#how-it-works", label: "How it works" },
+  { href: "/#how-it-works", label: "How it works" },
 ]
 
 export function Navbar() {
@@ -20,7 +21,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
 
   const isActive = (href) =>
-    href.includes("#") ? false : href === "/home" ? pathname === "/home" : pathname.startsWith(href)
+    href.includes("#") ? false : href === "/" ? pathname === "/" : pathname.startsWith(href)
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card">
@@ -44,12 +45,20 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
-            Sign in
-          </Link>
-          <Link href="/register" className={buttonVariants()}>
-            Get started
-          </Link>
+          {AUTH_ENABLED ? (
+            <>
+              <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
+                Sign in
+              </Link>
+              <Link href="/register" className={buttonVariants()}>
+                Get started
+              </Link>
+            </>
+          ) : (
+            <Link href="/tools" className={buttonVariants()}>
+              Browse tools
+            </Link>
+          )}
         </div>
 
         <Button
@@ -78,14 +87,20 @@ export function Navbar() {
               </Link>
             ))}
           </nav>
-          <div className="grid grid-cols-2 gap-2">
-            <Link href="/login" onClick={() => setOpen(false)} className={buttonVariants({ variant: "outline" })}>
-              Sign in
+          {AUTH_ENABLED ? (
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/login" onClick={() => setOpen(false)} className={buttonVariants({ variant: "outline" })}>
+                Sign in
+              </Link>
+              <Link href="/register" onClick={() => setOpen(false)} className={buttonVariants()}>
+                Get started
+              </Link>
+            </div>
+          ) : (
+            <Link href="/tools" onClick={() => setOpen(false)} className={buttonVariants({ className: "w-full" })}>
+              Browse tools
             </Link>
-            <Link href="/register" onClick={() => setOpen(false)} className={buttonVariants()}>
-              Get started
-            </Link>
-          </div>
+          )}
         </div>
       )}
     </header>

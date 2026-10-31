@@ -5,8 +5,8 @@ import { HeroVisual } from "@/components/pages/home/hero-visual"
 import { TOOLS } from "@/lib/tools"
 
 const POINTS = [
-  "No sign-up needed to start",
-  "Runs in your browser, nothing to install",
+  "No account or sign-up needed",
+  "Works on any device, nothing to install",
   `${TOOLS.length} tools in one place`,
 ]
 
@@ -15,8 +15,8 @@ export function Hero() {
     <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 sm:px-6 lg:pt-20">
       <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
         <div>
-          <h1 className="text-5xl leading-[1.05] font-extrabold sm:text-6xl">
-            PDF work, without the paperwork.
+          <h1 className="text-4xl leading-[1.08] font-extrabold sm:text-5xl lg:text-6xl">
+            Free online PDF tools, without the paperwork.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted-foreground">
             Merge, split, compress and convert PDFs in seconds. Pick a tool, drop in your file and download the result.

@@ -14,7 +14,7 @@ export function AuthShell({ title, description, footer, panelTitle, panelText, c
           <div className="mt-8">{children}</div>
           <p className="mt-6 text-center text-sm text-muted-foreground">{footer}</p>
         </div>
-        <Link href="/home" className="text-center text-sm font-medium text-primary-strong hover:underline">
+        <Link href="/" className="text-center text-sm font-medium text-primary-strong hover:underline">
           Back to PaperLess
         </Link>
       </main>

@@ -22,7 +22,7 @@ export function LoginForm() {
     setError(null)
     try {
       await login(data.get("email"), data.get("password"))
-      router.push("/home")
+      router.push("/")
     } catch (err) {
       setError(err.message)
       setLoading(false)

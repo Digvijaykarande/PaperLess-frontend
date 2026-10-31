@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { usePdfJob } from "@/hooks/use-pdf-job"
+import { MAX_FILE_MB } from "@/lib/site"
 import { getTool } from "@/lib/tools"
 
 const initialValues = (tool) =>
@@ -32,11 +33,17 @@ export function ToolWorkspace({ slug }) {
     const valid = incoming.filter((f) =>
       rules.extensions.includes(f.name.split(".").pop().toLowerCase())
     )
+    const maxBytes = MAX_FILE_MB * 1024 * 1024
+    const accepted = valid.filter((f) => f.size <= maxBytes)
     setFormError(
-      valid.length < incoming.length ? `Only ${rules.label} files can be used with this tool.` : null
+      valid.length < incoming.length
+        ? `Only ${rules.label} files can be used with this tool.`
+        : accepted.length < valid.length
+          ? `Files must be ${MAX_FILE_MB} MB or smaller.`
+          : null
     )
-    if (!valid.length) return
-    setFiles((prev) => (rules.multiple ? [...prev, ...valid] : valid))
+    if (!accepted.length) return
+    setFiles((prev) => (rules.multiple ? [...prev, ...accepted] : accepted))
     if (job.status === "error") reset()
   }
 
@@ -97,7 +104,7 @@ export function ToolWorkspace({ slug }) {
 
   // ---- Working ----
   if (running) {
-    return <JobProgress stage={job.stage} progress={job.progress} title={`${tool.action}…`} />
+    return <JobProgress stage={job.stage} progress={job.progress} slow={job.slow} title={`${tool.action}…`} />
   }
 
   // ---- Choose / configure ----
