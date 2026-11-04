@@ -19,7 +19,7 @@ export function Hero() {
       .then((response) => response.json())
       .then((data) => console.log(data))
       .catch((error) => console.error(error))
-  })
+  },[])
 
   return (
     <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 sm:px-6 lg:pt-20">
