@@ -29,7 +29,7 @@ export function Hero() {
             Free online PDF tools, without the paperwork.
           </h1>
           <p className="mt-5 max-w-xl text-lg text-muted-foreground">
-            Merge, split, compress and convert PDFs in seconds. Pick a tool,
+            Merge, split, edit , compress and convert PDFs in seconds. Pick a tool,
             drop in your file and download the result.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import { CircleAlert, CircleCheck, Download, LoaderCircle } from "lucide-react"
 
@@ -15,10 +16,20 @@ import { usePdfJob } from "@/hooks/use-pdf-job"
 import { MAX_FILE_MB } from "@/lib/site"
 import { getTool } from "@/lib/tools"
 
+// The editor needs the browser (canvas, PDF.js), so it is only loaded on the client.
+const PdfEditor = dynamic(() => import("@/components/pages/pdf-editor"), {
+  ssr: false,
+  loading: () => <p className="p-10 text-center text-sm text-muted-foreground">Loading the editor…</p>,
+})
+
 const initialValues = (tool) =>
-  Object.fromEntries((tool.fields ?? []).map((f) => [f.name, f.defaultValue ?? ""]))
+  Object.fromEntries((tool?.fields ?? []).map((f) => [f.name, f.defaultValue ?? ""]))
 
 export function ToolWorkspace({ slug }) {
+  return slug === "edit" ? <EditWorkspace tool={getTool(slug)} /> : <StandardWorkspace slug={slug} />
+}
+
+function StandardWorkspace({ slug }) {
   const tool = getTool(slug)
   const { file: rules } = tool
   const [files, setFiles] = useState([])
@@ -80,26 +91,7 @@ export function ToolWorkspace({ slug }) {
 
   // ---- Done ----
   if (job.status === "done") {
-    return (
-      <div className="flex flex-col items-center px-6 py-14 text-center">
-        <span className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
-          <CircleCheck className="size-8" />
-        </span>
-        <h2 className="mt-5 text-2xl font-bold">{tool.result.title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Your file is ready to download.</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <a href={job.downloadUrl} target="_blank" rel="noopener noreferrer" download className={buttonVariants({ size: "lg" })}>
-            <Download /> {tool.result.cta}
-          </a>
-          <Button size="lg" variant="outline" onClick={startOver}>
-            Start over
-          </Button>
-        </div>
-        <Link href="/tools" className="mt-6 text-sm font-medium text-primary-strong hover:underline">
-          Try another tool
-        </Link>
-      </div>
-    )
+    return <DoneScreen tool={tool} downloadUrl={job.downloadUrl} onStartOver={startOver} />
   }
 
   // ---- Working ----
@@ -199,5 +191,106 @@ export function ToolWorkspace({ slug }) {
         </Button>
       )}
     </form>
+  )
+}
+
+function DoneScreen({ tool, downloadUrl, onStartOver, onBack }) {
+  return (
+    <div className="flex flex-col items-center px-6 py-14 text-center">
+      <span className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
+        <CircleCheck className="size-8" />
+      </span>
+      <h2 className="mt-5 text-2xl font-bold">{tool.result.title}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Your file is ready to download.</p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <a href={downloadUrl} target="_blank" rel="noopener noreferrer" download className={buttonVariants({ size: "lg" })}>
+          <Download /> {tool.result.cta}
+        </a>
+        {onBack && (
+          <Button size="lg" variant="outline" onClick={onBack}>
+            Keep editing
+          </Button>
+        )}
+        <Button size="lg" variant="outline" onClick={onStartOver}>
+          Start over
+        </Button>
+      </div>
+      <Link href="/tools" className="mt-6 text-sm font-medium text-primary-strong hover:underline">
+        Try another tool
+      </Link>
+    </div>
+  )
+}
+
+// Interactive PDF editor: choose a file, edit it visually, then upload + process like every other tool.
+function EditWorkspace({ tool }) {
+  const [file, setFile] = useState(null)
+  const [error, setError] = useState(null)
+  const { job, run, reset } = usePdfJob()
+
+  function addFiles(incoming) {
+    const picked = incoming[0]
+    if (!picked) return
+    if (picked.name.split(".").pop().toLowerCase() !== "pdf") {
+      return setError(`Only ${tool.file.label} files can be used with this tool.`)
+    }
+    if (picked.size > MAX_FILE_MB * 1024 * 1024) {
+      return setError(`Files must be ${MAX_FILE_MB} MB or smaller.`)
+    }
+    setError(null)
+    reset()
+    setFile(picked)
+  }
+
+  function startOver() {
+    reset()
+    setFile(null)
+    setError(null)
+  }
+
+  const running = job.status === "running"
+  const done = job.status === "done"
+
+  return (
+    <>
+      {!file && (
+        <div className="space-y-4 p-4 sm:p-6">
+          <Dropzone extensions={tool.file.extensions} label={tool.file.label} multiple={false} onFiles={addFiles} />
+          <ul className="flex flex-wrap justify-center gap-2 pt-1 text-xs font-medium text-muted-foreground">
+            {["Edit existing text", "Add text", "Sign", "Highlight", "Draw & shapes", "Add images", "Rotate, delete & reorder pages"].map((f) => (
+              <li key={f} className="rounded-full bg-muted px-3 py-1">
+                {f}
+              </li>
+            ))}
+          </ul>
+          {error && (
+            <p role="alert" className="flex items-start gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              <CircleAlert className="mt-0.5 size-4 shrink-0" />
+              {error}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Stays mounted while saving so a failed save never loses the person's edits. */}
+      {file && (
+        <PdfEditor
+          key={`${file.name}-${file.size}-${file.lastModified}`}
+          file={file}
+          hidden={running || done}
+          saving={running}
+          error={job.status === "error" ? job.error : null}
+          onSave={(payload) => run(tool, [file], payload)}
+          onLoadError={(message) => {
+            setFile(null)
+            setError(message)
+          }}
+          onChangeFile={startOver}
+        />
+      )}
+
+      {running && <JobProgress stage={job.stage} progress={job.progress} slow={job.slow} title={`${tool.action}…`} />}
+      {done && <DoneScreen tool={tool} downloadUrl={job.downloadUrl} onStartOver={startOver} onBack={reset} />}
+    </>
   )
 }

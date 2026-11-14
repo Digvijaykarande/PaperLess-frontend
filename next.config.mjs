@@ -28,6 +28,7 @@ export default function nextConfig(phase) {
   const csp = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline'",
+    "worker-src 'self' blob:",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://res.cloudinary.com",
     "font-src 'self' data:",
