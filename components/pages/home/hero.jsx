@@ -23,29 +23,7 @@ export function Hero() {
 
   return (
     <>
-      <div
-        className="warning-banner"
-        style={{
-          width: "100vw",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#f8e852",
-          color: "#721c24",
-          padding: "5px",
-        }}
-      >
-        <span className="text-sm font-semibold uppercase tracking-widest text-primary">
-          Paperless still in beta. If you face any issues, please report then on
-          my email:{" "}
-          <a
-            href="mailto:karandedigvijay2@gmail.com"
-            className="text-primary underline"
-          >
-            report
-          </a>
-        </span>
-      </div>
+      
       <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 sm:px-6 lg:pt-20">
         <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
           <div>
